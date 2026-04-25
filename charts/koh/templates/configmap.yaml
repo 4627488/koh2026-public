@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "koh.fullname" . }}-config
+  labels:
+    {{- include "koh.labels" . | nindent 4 }}
+data:
+  KOH_DATA_DIR: {{ .Values.env.dataDir | quote }}
+  STRATEGY_WINDOW_MINUTES: {{ .Values.env.strategyWindowMinutes | quote }}
+  AUTO_ROUND_ENABLED: {{ .Values.env.autoRoundEnabled | quote }}
+  AUTO_ROUND_INTERVAL_MINUTES: {{ .Values.env.autoRoundIntervalMinutes | quote }}
+  AUTO_ROUND_STRATEGY_WINDOW_MINUTES: {{ .Values.env.autoRoundStrategyWindowMinutes | quote }}
+  AUTO_ROUND_MAX_OPEN_ROUNDS: {{ .Values.env.autoRoundMaxOpenRounds | quote }}
+  AUTO_ROUND_MAX_PENDING_MATCHES: {{ .Values.env.autoRoundMaxPendingMatches | quote }}
+  AUTO_ROUND_TICK_SECONDS: {{ .Values.env.autoRoundTickSeconds | quote }}
+  AUTO_ROUND_RECONCILE_SECONDS: {{ .Values.env.autoRoundReconcileSeconds | quote }}
+  CORS_ORIGINS: {{ toJson .Values.env.corsOrigins | quote }}

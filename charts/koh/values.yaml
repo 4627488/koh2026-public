@@ -1,0 +1,94 @@
+image:
+  repository: ghcr.io/example/asuri-major
+  tag: latest
+  pullPolicy: IfNotPresent
+  pullSecrets: []
+
+replicaCount: 1
+
+worker:
+  replicaCount: 1
+  pool: threads
+  concurrency: 8
+
+beat:
+  replicaCount: 1
+
+service:
+  type: ClusterIP
+  port: 8000
+  annotations: {}
+
+ingress:
+  enabled: true
+  className: nginx
+  host: koh.example.com
+  path: /
+  annotations: {}
+  tls: []
+
+storage:
+  enabled: true
+  existingClaim: ""
+  accessMode: ReadWriteMany
+  size: 20Gi
+  storageClassName: ""
+
+env:
+  databaseUrl: postgresql+psycopg://koh:CHANGE_ME@postgresql:5432/koh
+  redisUrl: redis://redis:6379/0
+  adminUsername: admin
+  adminPassword: CHANGE_ME_STRONG_PASSWORD
+  secretKey: CHANGE_ME_RANDOM_SECRET
+  dataDir: /app/data
+  strategyWindowMinutes: 10
+  autoRoundEnabled: false
+  autoRoundIntervalMinutes: 10
+  autoRoundStrategyWindowMinutes: 10
+  autoRoundMaxOpenRounds: 2
+  autoRoundMaxPendingMatches: 2000
+  autoRoundTickSeconds: 30
+  autoRoundReconcileSeconds: 60
+  corsOrigins:
+    - "*"
+
+resources:
+  api:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 1000m
+      memory: 1024Mi
+  worker:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+  beat:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 100m
+      memory: 256Mi
+
+monitoring:
+  prometheus:
+    enabled: true
+    path: /api/metrics
+    port: http
+    interval: 30s
+    scrapeTimeout: 10s
+  serviceMonitor:
+    enabled: false
+    namespace: ""
+    labels: {}
+  grafanaDashboard:
+    enabled: true
+    namespace: ""
+    labels:
+      grafana_dashboard: "1"
+    annotations: {}

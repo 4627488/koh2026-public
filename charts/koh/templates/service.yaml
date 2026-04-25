@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "koh.fullname" . }}
+  labels:
+    {{- include "koh.labels" . | nindent 4 }}
+  {{- $monitoringEnabled := .Values.monitoring.prometheus.enabled | default false }}
+  {{- $annotations := .Values.service.annotations | default dict }}
+  {{- if or $monitoringEnabled $annotations }}
+  annotations:
+    {{- if $monitoringEnabled }}
+    prometheus.io/scrape: "true"
+    prometheus.io/path: {{ .Values.monitoring.prometheus.path | quote }}
+    prometheus.io/port: {{ .Values.monitoring.prometheus.port | quote }}
+    {{- end }}
+    {{- with $annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- end }}
+spec:
+  type: {{ .Values.service.type }}
+  selector:
+    {{- include "koh.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: api
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.port }}
+      protocol: TCP
+      name: http

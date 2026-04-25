@@ -1,0 +1,52 @@
+[project]
+name = "asuri-major"
+version = "1.0.0"
+description = "Asuri Major competition platform"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi==0.116.1",
+    "uvicorn[standard]==0.35.0",
+    "sqlalchemy==2.0.43",
+    "psycopg[binary]==3.2.10",
+    "alembic==1.16.4",
+    "celery==5.5.3",
+    "redis==6.4.0",
+    "pydantic-settings==2.10.1",
+    "numpy==1.26.3",
+    "gym==0.26.2",
+    "torch==2.1.0",
+    "safetensors>=0.4.5",
+    "python-multipart>=0.0.24",
+]
+
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.uv]
+# 标准 uv/src 布局
+package = true
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["koh*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.3",
+]
+
+[tool.uv.sources]
+# torch CPU 版本来自 PyTorch 官方 wheel 源
+torch = { index = "pytorch-cpu" }
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true

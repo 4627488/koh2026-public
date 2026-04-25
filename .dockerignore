@@ -1,0 +1,22 @@
+# Python virtual environments
+.venv/
+venv/
+
+# Frontend local dependencies should never be copied into image
+frontend/node_modules/
+src/koh/static/app/
+
+# Common large/generated artifacts
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
+
+# Local data and logs
+data/
+*.log
+
+# VCS/editor metadata
+.git/
+.gitignore
+.vscode/

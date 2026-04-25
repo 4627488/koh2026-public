@@ -1,0 +1,46 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "koh.fullname" . }}-migrate
+  labels:
+    {{- include "koh.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 1
+  template:
+    metadata:
+      labels:
+        {{- include "koh.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: migrate
+    spec:
+      restartPolicy: Never
+      {{- with .Values.image.pullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+        - name: migrate
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - alembic
+            - -c
+            - /app/alembic.ini
+            - upgrade
+            - head
+          env:
+            {{- include "koh.migrationEnv" . | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: {{ .Values.env.dataDir }}
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ include "koh.sharedVolumeClaimName" . }}

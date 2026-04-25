@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+# uv 虚拟环境（不提交，但 uv.lock 应当提交）
+.venv/
+.env
+.env.*
+!.env.example
+
+# Credentials and local infrastructure state
+ctf.yaml
+*.kubeconfig
+*.pem
+*.key
+*.crt
+.tmp-helm-render.yaml
+.claude/
+
+presentation/node_modules/
+presentation/dist/
+# frontend
+frontend/node_modules/
+frontend/.vite/
+src/koh/static/app/
+
+# 竞赛运行数据（不提交到仓库）
+data/
+!data/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+.codex
+.codex/
+
+# 临时文件
+*.tmp
+*.log

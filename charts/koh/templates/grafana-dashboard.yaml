@@ -1,0 +1,163 @@
+{{- if .Values.monitoring.grafanaDashboard.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "koh.fullname" . }}-grafana-dashboard
+  {{- with .Values.monitoring.grafanaDashboard.namespace }}
+  namespace: {{ . }}
+  {{- end }}
+  labels:
+    {{- include "koh.labels" . | nindent 4 }}
+    {{- with .Values.monitoring.grafanaDashboard.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.monitoring.grafanaDashboard.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+data:
+  koh-overview.json: |
+    {
+      "annotations": { "list": [] },
+      "editable": true,
+      "graphTooltip": 0,
+      "panels": [
+        {
+          "type": "timeseries",
+          "title": "HTTP Request Rate",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+          "targets": [
+            {
+              "expr": "sum by (method, path) (rate(koh_http_requests_total[5m]))",
+              "legendFormat": "{{ "{{" }}method{{ "}}" }} {{ "{{" }}path{{ "}}" }}"
+            }
+          ]
+        },
+        {
+          "type": "timeseries",
+          "title": "HTTP P95 Latency",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+          "targets": [
+            {
+              "expr": "histogram_quantile(0.95, sum by (le, method, path) (rate(koh_http_request_duration_seconds_bucket[5m])))",
+              "legendFormat": "{{ "{{" }}method{{ "}}" }} {{ "{{" }}path{{ "}}" }}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "s"
+            }
+          }
+        },
+        {
+          "type": "stat",
+          "title": "Current Round",
+          "gridPos": { "h": 5, "w": 6, "x": 0, "y": 8 },
+          "targets": [
+            {
+              "expr": "koh_current_round_id"
+            }
+          ]
+        },
+        {
+          "type": "stat",
+          "title": "Next Round",
+          "gridPos": { "h": 5, "w": 6, "x": 6, "y": 8 },
+          "targets": [
+            {
+              "expr": "koh_next_round_id"
+            }
+          ]
+        },
+        {
+          "type": "stat",
+          "title": "Active Maps",
+          "gridPos": { "h": 5, "w": 6, "x": 12, "y": 8 },
+          "targets": [
+            {
+              "expr": "koh_active_maps"
+            }
+          ]
+        },
+        {
+          "type": "stat",
+          "title": "Latest Test Run",
+          "gridPos": { "h": 5, "w": 6, "x": 18, "y": 8 },
+          "targets": [
+            {
+              "expr": "koh_latest_test_run_id"
+            }
+          ]
+        },
+        {
+          "type": "timeseries",
+          "title": "Matches By Status",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 13 },
+          "targets": [
+            {
+              "expr": "koh_match_status_count",
+              "legendFormat": "{{ "{{" }}status{{ "}}" }}"
+            }
+          ]
+        },
+        {
+          "type": "timeseries",
+          "title": "Rounds By Status",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 13 },
+          "targets": [
+            {
+              "expr": "koh_round_status_count",
+              "legendFormat": "{{ "{{" }}status{{ "}}" }}"
+            }
+          ]
+        },
+        {
+          "type": "stat",
+          "title": "Site Phase",
+          "gridPos": { "h": 5, "w": 12, "x": 0, "y": 21 },
+          "targets": [
+            {
+              "expr": "koh_phase_info == 1",
+              "legendFormat": "{{ "{{" }}phase{{ "}}" }}"
+            }
+          ],
+          "options": {
+            "reduceOptions": {
+              "calcs": ["lastNotNull"],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "name"
+          }
+        },
+        {
+          "type": "stat",
+          "title": "Auto Round State",
+          "gridPos": { "h": 5, "w": 12, "x": 12, "y": 21 },
+          "targets": [
+            {
+              "expr": "koh_auto_round_state == 1",
+              "legendFormat": "{{ "{{" }}state{{ "}}" }}"
+            }
+          ],
+          "options": {
+            "reduceOptions": {
+              "calcs": ["lastNotNull"],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "name"
+          }
+        }
+      ],
+      "refresh": "30s",
+      "schemaVersion": 39,
+      "style": "dark",
+      "tags": ["koh", "prometheus"],
+      "templating": { "list": [] },
+      "time": { "from": "now-6h", "to": "now" },
+      "timezone": "",
+      "title": "KOH Overview",
+      "version": 1
+    }
+{{- end }}
